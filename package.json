@@ -4,7 +4,9 @@
   "description": "Use Node and MySQL to create an employee tracker",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node employeeSeeds.sql",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +18,10 @@
   "bugs": {
     "url": "https://github.com/krcook1980/EmployeeTrackerMySql/issues"
   },
-  "homepage": "https://github.com/krcook1980/EmployeeTrackerMySql#readme"
+  "homepage": "https://github.com/krcook1980/EmployeeTrackerMySql#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
 }
