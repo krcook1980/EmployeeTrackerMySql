@@ -144,6 +144,7 @@ const start = () => {
             }   
             else if (response.action === 'Remove current employee'){
                 //get employee and delete from sql
+                findEmp();                
             }
             else if (response.action === 'Update current employee role'){
                 //get employee and update sql role
@@ -181,6 +182,7 @@ const empByDep = (response) => {
     });
 }
 
+//function to display employees by role
 const empByRole = (response) => {
     let dept = response.action;
     connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where department.name = '${dept}'`, (err, res) => {
@@ -191,4 +193,50 @@ const empByRole = (response) => {
     });
 }
 
+//function to delete employees
+//get employee
+const findEmp = (response => {
+    inquirer
+        .prompt([
+        {
+            name: 'first_name',
+            type: 'input',
+            message: 'What is the the first name?'
+        },
+        {
+            name: 'last_name',
+            type: 'input',
+            message: 'What is the last name?'
+        }
+    ]).then((response) => {
+            let first_name = response.first_name;
+            let last_name = response.last_name;
 
+            connection.query(`SELECT employee.id, first_name, last_name, title FROM employee LEFT JOIN role on employee.role_id = role.id WHERE employee.first_name = '${first_name}'  AND employee.last_name = '${last_name}'`, (err, res) => {
+                if (err) throw err;
+
+                console.table('Matching Employees', res);
+                delEmp();
+            })
+            
+        })
+})
+
+//delete employee
+const delEmp = () => {
+    inquirer
+        .prompt ([
+            {
+            name: 'id',
+            type: 'number',
+            message: 'In the above list, what is the employee id?'
+        }
+    ]).then((response) => {
+            let id = response.id;
+            connection.query(`DELETE FROM employee WHERE employee.id = ${id}`, (err, res) => {
+                if (err) throw err;
+                console.log('This employee has been removed');
+                start();
+            })
+        })
+}
