@@ -12,6 +12,7 @@ const connection = mysql.createConnection({
     database: 'employeetrackerdb',
 });
 
+//function for entering new employee in to the system
 const newEmp = () => {
     inquirer
      .prompt([
@@ -93,13 +94,13 @@ const newEmp = () => {
         start();
      })
 }
-
+//make connection to mysql and start questions
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
     start();
 });
-
+//First question and how to move to next step
 const start = () => {
     inquirer
         .prompt({
@@ -115,8 +116,18 @@ const start = () => {
                 //sql query and display table
                 newEmp();
             }
-            else if (response.action === 'View current employees by role'){
+            else if (response.action === 'View current employees by department'){
                 //sql query and display table
+                inquirer
+                  .prompt({
+                    name: 'action',
+                    type: 'list',
+                    message: 'Which department?',
+                    choices: ['Sales', 'Accounting', 'Administration']
+                  }).then((response) => {
+                    let dept = response.action; 
+                    empByDep(response);
+                  })
             }
             else if (response.action === 'Enter new employee'){
                 //ask info to fill in employee info sql create function
@@ -149,14 +160,16 @@ const allEmp = () => {
 
 };
 
-// const empByDep = () => {
-//     connection.query('SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;', (err, res) => {
-//         if (err) throw err;
+//function to display employees by department
+const empByDep = (response) => {
+    let dept = response.action;
+    connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where department.name = '${dept}'`, (err, res) => {
+        if (err) throw err;
         
-//         console.table('Current Employees', res);
-//         start();
-//     });
-// }
+        console.table('Current Employees', res);
+        start();
+    });
+}
 
 
 
