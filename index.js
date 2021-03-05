@@ -112,10 +112,6 @@ const start = () => {
             if(response.action === 'View current employees'){
                 allEmp();
             }
-            else if (response.action === 'Enter new employee'){
-                //sql query and display table
-                newEmp();
-            }
             else if (response.action === 'View current employees by department'){
                 //sql query and display table
                 inquirer
@@ -123,7 +119,20 @@ const start = () => {
                     name: 'action',
                     type: 'list',
                     message: 'Which department?',
-                    choices: ['Sales', 'Accounting', 'Administration']
+                    choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
+                  }).then((response) => {
+                    let dept = response.action; 
+                    empByRole(response);
+                  })
+            }
+            else if (response.action === 'View current employees by role'){
+                //sql query and display table
+                inquirer
+                  .prompt({
+                    name: 'action',
+                    type: 'list',
+                    message: 'Which department?',
+                    choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COOAdministration']
                   }).then((response) => {
                     let dept = response.action; 
                     empByDep(response);
@@ -131,6 +140,7 @@ const start = () => {
             }
             else if (response.action === 'Enter new employee'){
                 //ask info to fill in employee info sql create function
+                newEmp();
             }   
             else if (response.action === 'Remove current employee'){
                 //get employee and delete from sql
@@ -149,7 +159,7 @@ const start = () => {
         });
 };
 
-//function to display all employees
+//function to display all employees ***get manager name instead of id...
 const allEmp = () => {
     connection.query('SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;', (err, res) => {
         if (err) throw err;
@@ -160,16 +170,25 @@ const allEmp = () => {
 
 };
 
-//function to display employees by department
+//function to display employees by department ***get manager name instead of id...
 const empByDep = (response) => {
-    let dept = response.action;
-    connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where department.name = '${dept}'`, (err, res) => {
+    let empRole = response.action;
+    connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where role.title = '${empRole}'`, (err, res) => {
         if (err) throw err;
         
-        console.table('Current Employees', res);
+        console.table('Current Employees by Role', res);
         start();
     });
 }
 
+const empByRole = (response) => {
+    let dept = response.action;
+    connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where department.name = '${dept}'`, (err, res) => {
+        if (err) throw err;
+        
+        console.table('Current Employees by Department', res);
+        start();
+    });
+}
 
 
