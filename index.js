@@ -28,59 +28,59 @@ const start = () => {
             name: 'action',
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View current employees', 'View current employees by department', 'View current employees by role', 'View current employees by manager', 'Enter new employee', 'Remove current employee', 'Update current employee role', 'Update current employee manager','I am finished']
+            choices: ['View current employees', 'View current employees by department', 'View current employees by role', 'View current employees by manager', 'Enter new employee', 'Remove current employee', 'Update current employee role', 'Update current employee manager', 'I am finished']
         }).then((response) => {
-            if(response.action === 'View current employees'){
+            if (response.action === 'View current employees') {
                 allEmp();
             }
-            else if (response.action === 'View current employees by department'){
+            else if (response.action === 'View current employees by department') {
                 //sql query and display table
                 inquirer
-                  .prompt({
-                    name: 'action',
-                    type: 'list',
-                    message: 'Which department?',
-                    choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
-                  }).then((response) => {
-                    let dept = response.action; 
-                    empByRole(response);
-                  })
+                    .prompt({
+                        name: 'action',
+                        type: 'list',
+                        message: 'Which department?',
+                        choices: ['Sales', 'Accounting', 'Adminstration']
+                    }).then((response) => {
+                        let dept = response.action;
+                        empByDep(response);
+                    })
             }
-            else if (response.action === 'View current employees by role'){
+            else if (response.action === 'View current employees by role') {
                 //sql query and display table
                 inquirer
-                  .prompt({
-                    name: 'action',
-                    type: 'list',
-                    message: 'Which department?',
-                    choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COOAdministration']
-                  }).then((response) => {
-                    let dept = response.action; 
-                    empByDep(response);
-                  })
+                    .prompt({
+                        name: 'action',
+                        type: 'list',
+                        message: 'Which department?',
+                        choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
+                    }).then((response) => {
+                        let dept = response.action;
+                        empByRole(response);
+                    })
             }
-            else if (response.action === 'View current employees by manager'){
+            else if (response.action === 'View current employees by manager') {
                 empByMgr();
             }
-            else if (response.action === 'Enter new employee'){
+            else if (response.action === 'Enter new employee') {
                 //ask info to fill in employee info sql create function
                 newEmp();
-            }   
-            else if (response.action === 'Remove current employee'){
-                //get employee and delete from sql
-                findEmp();                
             }
-            else if (response.action === 'Update current employee role'){
+            else if (response.action === 'Remove current employee') {
+                //get employee and delete from sql
+                findEmp();
+            }
+            else if (response.action === 'Update current employee role') {
                 //get employee and update sql role
                 findEmpRole();
 
             }
-            else if (response.action === 'Update current employee manager'){
+            else if (response.action === 'Update current employee manager') {
                 //get employee and update sql manager
                 findEmpMgr();
             }
-            else{
-                console.log('Thank you') 
+            else {
+                console.log('Thank you')
                 //connection.end()?
             }
 
@@ -91,9 +91,17 @@ const start = () => {
 
 //function to display all employees ***get manager name instead of id...
 const allEmp = () => {
-    connection.query('SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;', (err, res) => {
+    connection.query(`
+    SELECT CONCAT(e.first_name, " ", e.last_name) AS Employee,title,salary,name,CONCAT(A.first_name, " ",A.last_name) AS ManagerName 
+    FROM employee e 
+    LEFT JOIN role R 
+    on e.role_id = R.id 
+    LEFT JOIN department D 
+    on r.department_id = D.id 
+    LEFT JOIN employee A 
+    on e.manager_id = a.id`, (err, res) => {
         if (err) throw err;
-        
+
         console.table('Current Employees', res);
         start();
     });
@@ -101,31 +109,49 @@ const allEmp = () => {
 };
 
 //function to display employees by department ***get manager name instead of id...
-const empByDep = (response) => {
+const empByRole = (response) => {
     let empRole = response.action;
-    connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where role.title = '${empRole}'`, (err, res) => {
+    connection.query(`
+    SELECT CONCAT(e.first_name, " ", e.last_name) AS Employee,title,salary,name,CONCAT(A.first_name, " ",A.last_name) AS ManagerName 
+    FROM employee e 
+    LEFT JOIN role r
+    on e.role_id = r.id
+    LEFT JOIN employee A 
+    on e.manager_id = a.id 
+    LEFT JOIN department d 
+    on r.department_id = d.id 
+    where r.title = '${empRole}'`, (err, res) => {
         if (err) throw err;
-        
-        console.table('Current Employees by Role', res);
+        console.log(res)
+        console.table('Current Employees by Department', res);
         start();
     });
 }
 
 //function to display employees by role ***get manager name instead of id...
-const empByRole = (response) => {
+const empByDep = (response) => {
     let dept = response.action;
-    connection.query(`SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id where department.name = '${dept}'`, (err, res) => {
+    connection.query(`
+    SELECT CONCAT(e.first_name, " ", e.last_name) AS Employee,title,salary,name,CONCAT(A.first_name, " ",A.last_name) AS ManagerName 
+    FROM employee e 
+    LEFT JOIN role r
+    on e.role_id = r.id
+    LEFT JOIN employee A 
+    on e.manager_id = a.id 
+    LEFT JOIN department d 
+    on r.department_id = d.id 
+    where d.name = '${dept}'`, (err, res) => {
         if (err) throw err;
-        
-        console.table('Current Employees by Department', res);
+
+        console.table('Current Employees by role', res);
         start();
     });
 }
 
 //function to display employees by manager 
 const empByMgr = () => {
-    
-    inquirer    
+
+    inquirer
         .prompt([
             {
                 name: 'first_name',
@@ -140,15 +166,25 @@ const empByMgr = () => {
         ]).then((response) => {
             let mgrF = response.first_name;
             let mgrL = response.last_name;
-           
-            connection.query(`SELECT first_name,last_name,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id Where manager_id IN (SELECT id from employee where first_name = '${mgrF}' and last_name = '${mgrL}')`, (err, res) => {
+
+            connection.query(`
+            SELECT CONCAT(e.first_name, " ", e.last_name) AS Employee,title,salary,name,CONCAT(A.first_name, " ",A.last_name) AS ManagerName 
+            FROM employee e 
+            LEFT JOIN role r
+            on e.role_id = r.id
+            LEFT JOIN employee A 
+            on e.manager_id = a.id 
+            LEFT JOIN department d 
+            on r.department_id = d.id
+            Where e.manager_id 
+            IN (SELECT e.id from employee e where first_name = '${mgrF}' and last_name = '${mgrL}')`, (err, res) => {
                 if (err) throw err;
-                
+
                 console.table('Current Employees by Manager', res);
                 start();
             });
-            
-           
+
+
         })
 }
 
@@ -158,101 +194,101 @@ const empByMgr = () => {
 //function for entering new employee in to the system
 const newEmp = () => {
     inquirer
-     .prompt([
-     {
-        name: 'first_name',
-        type: 'input',
-        message: 'New employee first name?',
-     },
-     {
-        name: 'last_name',
-        type: 'input',
-        message: 'New employee last name?',
-     },
-     {
-        name: 'role',
-        type: 'list',
-        message: 'New employee title?',
-        choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
-     },
-     {
-        name: 'manager',
-        type: 'input',
-        message: 'Manager for new employee?',
-     },
-     {
-        name: 'salary',
-        type: 'input',
-        message: 'New employee salary',
-     },
-    ]).then((response) => {
-        let role;
-        let department;
-         console.log(response)
-        console.log('Inserting New Employee Information\n');
-            if(response.role === "Sales Manager"){
+        .prompt([
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'New employee first name?',
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'New employee last name?',
+            },
+            {
+                name: 'role',
+                type: 'list',
+                message: 'New employee title?',
+                choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
+            },
+            {
+                name: 'manager',
+                type: 'input',
+                message: 'Manager for new employee?',
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'New employee salary',
+            },
+        ]).then((response) => {
+            let role;
+            let department;
+            console.log(response)
+            console.log('Inserting New Employee Information\n');
+            if (response.role === "Sales Manager") {
                 role = 1
                 department = 1
             }
-            else if(response.role === "Sales Associate"){
+            else if (response.role === "Sales Associate") {
                 role = 2
                 department = 1
             }
-            else if(response.role === "CFO"){
+            else if (response.role === "CFO") {
                 role = 3
                 department = 2
             }
-            else if(response.role === "Accountant"){
+            else if (response.role === "Accountant") {
                 role = 4
                 department = 2
             }
-            else if(response.role === "COO"){
+            else if (response.role === "COO") {
                 role = 5
                 department = 3
             }
-            else if(response.role === "Marketing"){
+            else if (response.role === "Marketing") {
                 role = 6
                 department = 3
             }
-            else if(response.role === "Contract Coordinator"){
+            else if (response.role === "Contract Coordinator") {
                 role = 7
                 department = 3
             }
             //search manager name and return manager empID
-        connection.query(
-           
-            'INSERT INTO employee SET ?',
-            {
-                first_name: response.first_name,
-                last_name: response.last_name,
-                role_id: role,
-                
-            },
-            (err,res)=> {
-                if (err) throw err;
-                console.log(`${res.affectedRows} product inserted!\n`)
-            }
-        )
-       
-        start();
-     })
+            connection.query(
+
+                'INSERT INTO employee SET ?',
+                {
+                    first_name: response.first_name,
+                    last_name: response.last_name,
+                    role_id: role,
+
+                },
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`${res.affectedRows} product inserted!\n`)
+                }
+            )
+
+            start();
+        })
 }
 
 //get employee to remove
 const findEmp = (response => {
     inquirer
         .prompt([
-        {
-            name: 'first_name',
-            type: 'input',
-            message: 'What is the the first name?'
-        },
-        {
-            name: 'last_name',
-            type: 'input',
-            message: 'What is the last name?'
-        }
-    ]).then((response) => {
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the the first name?'
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'What is the last name?'
+            }
+        ]).then((response) => {
             let first_name = response.first_name;
             let last_name = response.last_name;
 
@@ -262,20 +298,20 @@ const findEmp = (response => {
                 console.table('Matching Employees', res);
                 delEmp();
             })
-            
+
         })
 })
 
 //delete employee
 const delEmp = () => {
     inquirer
-        .prompt ([
+        .prompt([
             {
-            name: 'id',
-            type: 'number',
-            message: 'In the above list, what is the employee id?'
-        }
-    ]).then((response) => {
+                name: 'id',
+                type: 'number',
+                message: 'In the above list, what is the employee id?'
+            }
+        ]).then((response) => {
             let id = response.id;
             connection.query(`DELETE FROM employee WHERE employee.id = ${id}`, (err, res) => {
                 if (err) throw err;
@@ -289,17 +325,17 @@ const delEmp = () => {
 const findEmpRole = (response) => {
     inquirer
         .prompt([
-        {
-            name: 'first_name',
-            type: 'input',
-            message: 'What is the first name?'
-        },
-        {
-            name: 'last_name',
-            type: 'input',
-            message: 'What is the last name?'
-        }
-    ]).then((response) => {
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the first name?'
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'What is the last name?'
+            }
+        ]).then((response) => {
             let first_name = response.first_name;
             let last_name = response.last_name;
 
@@ -309,56 +345,56 @@ const findEmpRole = (response) => {
                 console.table('Matching Employees', res);
                 updateEmp();
             })
-            
+
         })
 }
 
 //Update selection
 const updateEmp = () => {
     inquirer
-        .prompt ([
+        .prompt([
             {
-            name: 'id',
-            type: 'number',
-            message: 'In the above list, what is the employee id?'
-        },
-        {
-            name: 'role',
-            type: 'list',
-            message: 'New employee title?',
-            choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
-         },
-    ]).then((response) => {
-        let id = response.id;
-        let role;
-        let department;
-         console.log(response)
-        console.log('Inserting New Employee Information\n');
-            if(response.role === "Sales Manager"){
+                name: 'id',
+                type: 'number',
+                message: 'In the above list, what is the employee id?'
+            },
+            {
+                name: 'role',
+                type: 'list',
+                message: 'New employee title?',
+                choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
+            },
+        ]).then((response) => {
+            let id = response.id;
+            let role;
+            let department;
+            console.log(response)
+            console.log('Inserting New Employee Information\n');
+            if (response.role === "Sales Manager") {
                 role = 1
                 department = 1
             }
-            else if(response.role === "Sales Associate"){
+            else if (response.role === "Sales Associate") {
                 role = 2
                 department = 1
             }
-            else if(response.role === "CFO"){
+            else if (response.role === "CFO") {
                 role = 3
                 department = 2
             }
-            else if(response.role === "Accountant"){
+            else if (response.role === "Accountant") {
                 role = 4
                 department = 2
             }
-            else if(response.role === "COO"){
+            else if (response.role === "COO") {
                 role = 5
                 department = 3
             }
-            else if(response.role === "Marketing"){
+            else if (response.role === "Marketing") {
                 role = 6
                 department = 3
             }
-            else if(response.role === "Contract Coordinator"){
+            else if (response.role === "Contract Coordinator") {
                 role = 7
                 department = 3
             }
@@ -374,17 +410,17 @@ const updateEmp = () => {
 const findEmpMgr = (response) => {
     inquirer
         .prompt([
-        {
-            name: 'first_name',
-            type: 'input',
-            message: 'What is the employee first name?'
-        },
-        {
-            name: 'last_name',
-            type: 'input',
-            message: 'What is the employee last name?'
-        }
-    ]).then((response) => {
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the employee first name?'
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'What is the employee last name?'
+            }
+        ]).then((response) => {
             let first_name = response.first_name;
             let last_name = response.last_name;
 
@@ -394,7 +430,7 @@ const findEmpMgr = (response) => {
                 console.table('Matching Employees', res);
                 updateMgr();
             })
-            
+
         })
 }
 
@@ -402,36 +438,36 @@ const findEmpMgr = (response) => {
 //Update Manager
 const updateMgr = () => {
     inquirer
-    .prompt ([
-    {
-        name: 'id',
-        type: 'number',
-        message: 'In the above list, what is the employee id?'
-    },
-    
-]).then((response) => {
-    let id = response.id;
-    connection.query('SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;', (err, res) => {
-        if (err) throw err;
-        
-        console.table('Current Employees', res);
-        inquirer
-            .prompt([
-                {
-                    name: 'mgr_id',
-                    type: 'number',
-                    message: 'In the above list, what is the new manager id?'  
-                }
-            ]).then((response) =>{
-                const mgrId = response.mgr_id;
-                connection.query(`UPDATE employee SET manager_id = ${mgrId} WHERE employee.id = ${id} `, (err, res) => {
-                    if (err) throw err;
-                    console.log('This employee information has been updated');
-                    start();
-                })
-            })
-    });
-    
-})
+        .prompt([
+            {
+                name: 'id',
+                type: 'number',
+                message: 'In the above list, what is the employee id?'
+            },
+
+        ]).then((response) => {
+            let id = response.id;
+            connection.query('SELECT first_name,last_name,manager_id,title,salary,name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;', (err, res) => {
+                if (err) throw err;
+
+                console.table('Current Employees', res);
+                inquirer
+                    .prompt([
+                        {
+                            name: 'mgr_id',
+                            type: 'number',
+                            message: 'In the above list, what is the new manager id?'
+                        }
+                    ]).then((response) => {
+                        const mgrId = response.mgr_id;
+                        connection.query(`UPDATE employee SET manager_id = ${mgrId} WHERE employee.id = ${id} `, (err, res) => {
+                            if (err) throw err;
+                            console.log('This employee information has been updated');
+                            start();
+                        })
+                    })
+            });
+
+        })
 
 }
