@@ -94,12 +94,14 @@ const newEmp = () => {
         start();
      })
 }
+
 //make connection to mysql and start questions
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
     start();
 });
+
 //First question and how to move to next step
 const start = () => {
     inquirer
@@ -148,6 +150,8 @@ const start = () => {
             }
             else if (response.action === 'Update current employee role'){
                 //get employee and update sql role
+                findEmpRole();
+
             }
             else if (response.action === 'Update current employee manager'){
                 //get employee and update sql manager
@@ -236,6 +240,91 @@ const delEmp = () => {
             connection.query(`DELETE FROM employee WHERE employee.id = ${id}`, (err, res) => {
                 if (err) throw err;
                 console.log('This employee has been removed');
+                start();
+            })
+        })
+}
+
+//update employee role
+const findEmpRole = (response) => {
+    inquirer
+        .prompt([
+        {
+            name: 'first_name',
+            type: 'input',
+            message: 'What is the the first name?'
+        },
+        {
+            name: 'last_name',
+            type: 'input',
+            message: 'What is the last name?'
+        }
+    ]).then((response) => {
+            let first_name = response.first_name;
+            let last_name = response.last_name;
+
+            connection.query(`SELECT employee.id, first_name, last_name, title FROM employee LEFT JOIN role on employee.role_id = role.id WHERE employee.first_name = '${first_name}'  AND employee.last_name = '${last_name}'`, (err, res) => {
+                if (err) throw err;
+
+                console.table('Matching Employees', res);
+                updateEmp();
+            })
+            
+        })
+}
+
+//Update selection
+const updateEmp = () => {
+    inquirer
+        .prompt ([
+            {
+            name: 'id',
+            type: 'number',
+            message: 'In the above list, what is the employee id?'
+        },
+        {
+            name: 'role',
+            type: 'list',
+            message: 'New employee title?',
+            choices: ['Sales Manager', 'Sales Associate', 'CFO', 'Accountant', 'COO', 'Marketing', 'Contract Coordinator']
+         },
+    ]).then((response) => {
+        let id = response.id;
+        let role;
+        let department;
+         console.log(response)
+        console.log('Inserting New Employee Information\n');
+            if(response.role === "Sales Manager"){
+                role = 1
+                department = 1
+            }
+            else if(response.role === "Sales Associate"){
+                role = 2
+                department = 1
+            }
+            else if(response.role === "CFO"){
+                role = 3
+                department = 2
+            }
+            else if(response.role === "Accountant"){
+                role = 4
+                department = 2
+            }
+            else if(response.role === "COO"){
+                role = 5
+                department = 3
+            }
+            else if(response.role === "Marketing"){
+                role = 6
+                department = 3
+            }
+            else if(response.role === "Contract Coordinator"){
+                role = 7
+                department = 3
+            }
+            connection.query(`UPDATE employee SET role_id = ${role} WHERE employee.id = ${id} `, (err, res) => {
+                if (err) throw err;
+                console.log('This employee information has been updated');
                 start();
             })
         })
