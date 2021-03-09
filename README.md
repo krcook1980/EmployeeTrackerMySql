@@ -3,7 +3,7 @@
   ![demo clip](https://github.com/krcook1980/EmployeeTrackerMySql/blob/main/assets/ETgif%20(1).gif?raw=true)
 ---
   ## Description
-   Generate Employee Tracker with node, express, and mysql. Functions include:
+   Generate Employee Tracker with node, inquirer, and mysql. Functions include:
    - View all employees
    - View employees by department, role, or manager
    - Enter a new employee, department, or role
