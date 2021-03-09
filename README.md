@@ -1,9 +1,15 @@
 # EmployeeTrackerMySql [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [Full Demo Video](https://drive.google.com/file/d/1cSVTcLB6unNn2QgwOZ-1HaJ4XZ3foEUm/view)
-  ![demo clip](https://drive.google.com/file/d/11HXKZJlWk7lK1Tb3vK0MSpc1kS3W2Qy9/view)
+  [Full Demo Video](https://drive.google.com/file/d/1foT2zxzuLRguBNzEk3amJJL0iAbkIWmv/view)
+  ![demo clip](https://drive.google.com/file/d/1ui22MCSsOyScj5UTTuZ61WC5JcegUJP3/view)
 ---
   ## Description
-   Generate a read me file for GitHub using javascript and node.
+   Generate Employee Tracker with node, express, and mysql. Functions include:
+   - View all employees
+   - View employees by department, role, or manager
+   - Enter a new employee, department, or role
+   - Update employee department or role
+   - Remove a current employee
+   
 
   ## License
    [View Full MIT License](https://opensource.org/licenses/MIT)
@@ -13,21 +19,17 @@
   * [Installation](#installation)
   * [Usage](#usage)
   * [Contributing](#contributing)
-  * [Tests](#tests)
   * [Questions](#questions)
 
 
   ## Installation
-   Use npm i for the package.json
+   Use npm i for the package.json, enter your mysql password in the index.js on row 11, connect to mysql using mysql -u root -p. Create and seed your database with source employeeSeeds.sql
 
   ## Usage
 
    In the terminal, use node index.js
 
-  ## Tests
-   In the terminal node test.js
-
-   ## Contributing
+  ## Contributing
    No need to contribute at this time.
 
   ## Questions
