@@ -1,6 +1,6 @@
 # EmployeeTrackerMySql [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [Full Demo Video](https://drive.google.com/file/d/1foT2zxzuLRguBNzEk3amJJL0iAbkIWmv/view)
-  ![demo clip](https://drive.google.com/file/d/1ui22MCSsOyScj5UTTuZ61WC5JcegUJP3/view)
+  [Full Demo Video](https://drive.google.com/file/d/1foT2zxzuLRguBNzEk3amJJL0iAbkIWmv/view)  
+  ![demo clip](https://drive.google.com/file/d/1KbJ7EPS0AM_bNrdJEsEh3r94EMVoebBA/view)
 ---
   ## Description
    Generate Employee Tracker with node, express, and mysql. Functions include:
