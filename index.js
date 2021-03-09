@@ -18,26 +18,30 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
+    getUpdate();
+
+})
+//Get updated roles and department lists
+const getUpdate = () => {
     connection.query('SELECT name FROM department', (err, res) => {
 
         if (err) throw err;
         for (i = 0; i < res.length; i++) {
             depts.push(res[i].name)
         }
-        console.log(depts)
+        
         connection.query('SELECT title FROM role', (err, res) => {
             if (err) throw err;
             for (i = 0; i < res.length; i++) {
                 roles.push(res[i].title)
 
             }
-            console.log(res)
+            
             start();
         })
 
-    });
-
-})
+    }); 
+}
 //First question and how to move to next step
 const start = () => {
 
@@ -150,7 +154,7 @@ const empByRole = (response) => {
             on r.department_id = d.id 
             where r.title = '${empRole}'`, (err, res) => {
         if (err) throw err;
-        console.log(res)
+        
         console.table('Current Employees by role', res);
         start();
     });
@@ -384,12 +388,12 @@ const updateEmp = () => {
             let role = response.role;
             let roleID = "";
             
-            console.log(response)
+            
             console.log('Inserting New Employee Information\n');
             
             connection.query(`SELECT id FROM role WHERE title = '${role}'`, (err, response)=> {
                 roleID = response[0].id;
-                console.log(response)
+                
                 connection.query(`UPDATE employee SET role_id = ${roleID} WHERE employee.id = ${id} `, (err, res) => {
                     if (err) throw err;
                     console.log('This employee information has been updated');
@@ -483,7 +487,7 @@ const addDep = () => {
             connection.query(`INSERT INTO department (name) VALUES ('${response.department}') `, (err, res) => {
                 if (err) throw err;
                 console.log('This department has been added');
-                start();
+                getUpdate();
 
             })
 
@@ -527,7 +531,7 @@ const addRole = () => {
                     (err, res) => {
                         if (err) throw err;
                         console.log(`${res.affectedRows} employee added !\n`)
-                        start();
+                        getUpdate();
                     }
 
 
